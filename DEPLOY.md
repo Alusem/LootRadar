@@ -18,20 +18,24 @@ O projeto já está em: **https://github.com/Alusem/LootRadar**
    - Escolhe o repositório **Alusem/LootRadar** (se não aparecer, liga primeiro a conta GitHub em Settings).  
    - Clica em **Import**.
 
-3. **Configurar o projeto**  
-   - **Root Directory:** clica em **Edit** e define **`frontend`** (a pasta do frontend).  
-   - **Framework Preset:** Vercel deve detetar **Vite**.  
-   - **Build Command:** `npm run build` (normalmente já vem preenchido).  
-   - **Output Directory:** `dist` (normalmente já vem preenchido).  
-   - Deixa o resto como está e clica em **Deploy**.
+3. **Configurar o projeto (obrigatório)**  
+   - **Root Directory:** clica em **Edit** ao lado de "Root Directory" e coloca **`frontend`**. Isto é essencial: o repositório tem a pasta `frontend` com o projeto Vite; se não definires isto, o Vercel tenta construir a partir da raiz e dá **404**.  
+   - **Framework Preset:** Vite (deve aparecer automaticamente).  
+   - **Build Command:** `npm run build`.  
+   - **Output Directory:** `dist`.  
+   - Clica em **Deploy**.
 
-4. **Variável de ambiente (opcional)**  
+4. **Se aparecer 404 ou "NOT_FOUND"**  
+   - No Vercel: **Settings** → **General** → **Root Directory** → **Edit** → escreve **`frontend`** e guarda.  
+   - Depois: **Deployments** → no último deploy, clica nos três pontinhos → **Redeploy** (sem alterar nada). Assim o projeto é construído a partir da pasta `frontend` e o site deve passar a carregar.
+
+5. **Variável de ambiente (opcional)**  
    Se mais tarde colocares o backend noutro serviço (Railway, Render, etc.):  
    - No projeto no Vercel: **Settings** → **Environment Variables**.  
    - Adiciona `VITE_API_URL` com o URL da API (ex.: `https://teu-backend.railway.app`).  
    - Faz um novo deploy para aplicar.
 
-5. **Ver o site**  
+6. **Ver o site**  
    No final do deploy o Vercel mostra um URL (ex.: `lootradar.vercel.app`). Esse é o teu site.
 
 ### Nota sobre a API

@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                         String    @id @default(uuid())
+  username                   String    @unique
+  email                      String    @unique
+  passwordHash               String?   // null para contas antigas; novas contas obrigatório
+  emailVerifiedAt            DateTime?
+  emailVerificationToken     String?
+  emailVerificationExpiresAt DateTime?
+  createdAt                  DateTime  @default(now())
+  claims                     Claim[]
+}
+
+model Claim {
+  id                String   @id @default(uuid())
+  userId            String
+  gamerPowerItemId  Int
+  title             String
+  openGiveawayUrl   String?  // URL para abrir a oferta na página "Meus resgates"
+  claimedAt         DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -1,5 +1,12 @@
 const CHEAPSHARK_BASE = 'https://www.cheapshark.com/api/1.0';
 
+const FETCH_OPTIONS: RequestInit = {
+  headers: {
+    'User-Agent': 'LootRadar/1.0 (https://github.com/Alusem/LootRadar)',
+    Accept: 'application/json',
+  },
+};
+
 interface DealDto {
   id: string;
   title: string;
@@ -13,17 +20,21 @@ interface DealDto {
 }
 
 async function getStoreNames(): Promise<Record<string, string>> {
-  const res = await fetch(`${CHEAPSHARK_BASE}/stores`, { signal: AbortSignal.timeout(10000) });
-  if (!res.ok) return {};
-  const data = await res.json();
-  const storeName: Record<string, string> = {};
-  if (Array.isArray(data)) {
-    data.forEach((s: { storeID?: string | number; storeName?: string }) => {
-      const id = String(s.storeID ?? '');
-      storeName[id] = (s.storeName && String(s.storeName).trim()) || `Loja ${id}`;
-    });
+  try {
+    const res = await fetch(`${CHEAPSHARK_BASE}/stores`, { ...FETCH_OPTIONS, signal: AbortSignal.timeout(10000) });
+    if (!res.ok) return {};
+    const data = await res.json();
+    const storeName: Record<string, string> = {};
+    if (Array.isArray(data)) {
+      data.forEach((s: { storeID?: string | number; storeName?: string }) => {
+        const id = String(s.storeID ?? '');
+        storeName[id] = (s.storeName && String(s.storeName).trim()) || `Loja ${id}`;
+      });
+    }
+    return storeName;
+  } catch {
+    return {};
   }
-  return storeName;
 }
 
 function mapDeal(item: Record<string, unknown>, storeNames: Record<string, string>): DealDto {
@@ -56,7 +67,7 @@ export async function GET(request: Request) {
     if (storeId) params.set('storeID', storeId);
     if (upperPrice) params.set('upperPrice', upperPrice);
     const [dealsRes, storeNames] = await Promise.all([
-      fetch(`${CHEAPSHARK_BASE}/deals?${params}`, { signal: AbortSignal.timeout(15000) }),
+      fetch(`${CHEAPSHARK_BASE}/deals?${params}`, { ...FETCH_OPTIONS, signal: AbortSignal.timeout(15000) }),
       getStoreNames(),
     ]);
     if (!dealsRes.ok) {

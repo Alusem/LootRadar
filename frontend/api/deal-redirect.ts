@@ -17,6 +17,22 @@ function isStoreUrl(url: string): boolean {
   }
 }
 
+/** Extrai URL de redirect de meta refresh ou link na página da CheapShark. */
+function extractRedirectUrlFromHtml(html: string): string | null {
+  const metaMatch = html.match(/content=["']0;\s*url=([^"']+)["']/i);
+  if (metaMatch?.[1]) {
+    const raw = metaMatch[1].replace(/&amp;/g, '&').trim();
+    if (/^https?:\/\//i.test(raw)) return raw;
+  }
+  const linkMatch = html.match(/<a[^>]+id=["']redirect["'][^>]+href=["']([^"']+)["']/i)
+    ?? html.match(/<a[^>]+href=["']([^"']+)["'][^>]+id=["']redirect["']/i);
+  if (linkMatch?.[1]) {
+    const raw = linkMatch[1].replace(/&amp;/g, '&').trim();
+    if (/^https?:\/\//i.test(raw)) return raw;
+  }
+  return null;
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const dealID = url.searchParams.get('dealID')?.trim();
@@ -40,6 +56,16 @@ export async function GET(request: Request) {
         status: 302,
         headers: { Location: finalUrl },
       });
+    }
+    if (res.ok) {
+      const html = await res.text();
+      const extracted = extractRedirectUrlFromHtml(html);
+      if (extracted && isStoreUrl(extracted)) {
+        return new Response(null, {
+          status: 302,
+          headers: { Location: extracted },
+        });
+      }
     }
   } catch {
     // fallback: redirect to CheapShark so the browser does the redirect

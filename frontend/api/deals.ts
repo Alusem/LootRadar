@@ -50,7 +50,7 @@ function mapDeal(item: Record<string, unknown>, storeNames: Record<string, strin
   const storeUrl =
     storeId === '1' && steamAppID
       ? `https://store.steampowered.com/app/${steamAppID}/`
-      : `/api/deal-redirect?dealID=${encodeURIComponent(dealId)}`;
+      : cheapSharkRedirect;
   return {
     id: dealId,
     title: String(item.title ?? ''),

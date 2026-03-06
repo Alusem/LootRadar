@@ -100,11 +100,13 @@ export async function getDeals(params?: {
   storeId?: string;
   upperPrice?: number;
   pageSize?: number;
+  pageNumber?: number;
 }): Promise<Deal[]> {
   const search = new URLSearchParams();
   if (params?.storeId) search.set('storeId', params.storeId);
   if (params?.upperPrice != null) search.set('upperPrice', String(params.upperPrice));
   if (params?.pageSize != null) search.set('pageSize', String(params.pageSize));
+  if (params?.pageNumber != null) search.set('pageNumber', String(params.pageNumber));
   const qs = search.toString();
   return request<Deal[]>(`/api/deals${qs ? `?${qs}` : ''}`);
 }

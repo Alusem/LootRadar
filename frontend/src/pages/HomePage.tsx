@@ -32,6 +32,7 @@ export default function HomePage() {
   const [errorDeals, setErrorDeals] = useState<string | null>(null);
   const [dealStoreId, setDealStoreId] = useState('');
   const [dealUpperPrice, setDealUpperPrice] = useState('');
+  const [dealPage, setDealPage] = useState(1);
 
   const loadGames = useCallback(async () => {
     setLoading(true);
@@ -58,6 +59,7 @@ export default function HomePage() {
       const upperUSD = Number.isFinite(upperBRL) && upperBRL > 0 ? upperBRL / BRL_TO_USD : undefined;
       const data = await getDeals({
         pageSize: 24,
+        pageNumber: dealPage,
         storeId: dealStoreId || undefined,
         upperPrice: upperUSD,
       });
@@ -67,7 +69,7 @@ export default function HomePage() {
     } finally {
       setLoadingDeals(false);
     }
-  }, [dealStoreId, dealUpperPrice]);
+  }, [dealStoreId, dealUpperPrice, dealPage]);
 
   useEffect(() => {
     loadGames();
@@ -186,8 +188,14 @@ export default function HomePage() {
           <DealFilterBar
             storeId={dealStoreId}
             upperPrice={dealUpperPrice}
-            onStoreChange={setDealStoreId}
-            onUpperPriceChange={setDealUpperPrice}
+            onStoreChange={(id) => {
+              setDealStoreId(id);
+              setDealPage(1);
+            }}
+            onUpperPriceChange={(v) => {
+              setDealUpperPrice(v);
+              setDealPage(1);
+            }}
           />
           {errorDeals && (
             <div className="mb-6 p-4 rounded-lg bg-red-900/30 border border-red-700 text-red-200">
@@ -201,13 +209,51 @@ export default function HomePage() {
               ))}
             </div>
           ) : deals.length === 0 ? (
-            <p className="text-gray-400">Nenhuma promoção encontrada.</p>
+            <>
+              <p className="text-gray-400">
+                {dealPage === 1
+                  ? 'Nenhuma promoção encontrada.'
+                  : 'Nenhuma promoção nesta página. Volta à página anterior.'}
+              </p>
+              {dealPage > 1 && (
+                <div className="mt-4 flex items-center justify-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setDealPage((p) => p - 1)}
+                    className="px-4 py-2 rounded-lg font-medium transition-colors bg-card border border-gray-600 text-white hover:bg-gray-700"
+                  >
+                    Anterior
+                  </button>
+                  <span className="text-gray-400">Página {dealPage}</span>
+                </div>
+              )}
+            </>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {deals.map((deal) => (
-                <DealCard key={deal.id} deal={deal} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {deals.map((deal) => (
+                  <DealCard key={deal.id} deal={deal} />
+                ))}
+              </div>
+              <div className="mt-6 flex items-center justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => setDealPage((p) => Math.max(1, p - 1))}
+                  disabled={dealPage === 1}
+                  className="px-4 py-2 rounded-lg font-medium transition-colors bg-card border border-gray-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700"
+                >
+                  Anterior
+                </button>
+                <span className="text-gray-400">Página {dealPage}</span>
+                <button
+                  type="button"
+                  onClick={() => setDealPage((p) => p + 1)}
+                  className="px-4 py-2 rounded-lg font-medium transition-colors bg-card border border-gray-600 text-white hover:bg-gray-700"
+                >
+                  Próxima
+                </button>
+              </div>
+            </>
           )}
           <p className="mt-6 text-xs text-gray-500">
             Dados de promoções via{' '}

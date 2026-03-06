@@ -69,10 +69,12 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const pageSize = url.searchParams.get('pageSize') || '24';
+    const pageNumber = url.searchParams.get('pageNumber') || '1';
     const storeId = url.searchParams.get('storeId') ?? '';
     const upperPrice = url.searchParams.get('upperPrice') ?? '';
     const params = new URLSearchParams();
     params.set('pageSize', pageSize);
+    params.set('pageNumber', pageNumber);
     if (storeId) params.set('storeID', storeId);
     if (upperPrice) params.set('upperPrice', upperPrice);
     const [dealsRes, storeNames] = await Promise.all([
@@ -92,7 +94,8 @@ export async function GET(request: Request) {
         headers: { 'Content-Type': 'application/json' },
       });
     }
-    const result = data.map((item: Record<string, unknown>) => mapDeal(item, storeNames));
+    const mapped = data.map((item: Record<string, unknown>) => mapDeal(item, storeNames));
+    const result = mapped.filter((d) => d.normalPrice <= 0 || d.salePrice <= d.normalPrice);
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: {

@@ -30,6 +30,13 @@ function extractRedirectUrlFromHtml(html: string): string | null {
     const raw = linkMatch[1].replace(/&amp;/g, '&').trim();
     if (/^https?:\/\//i.test(raw)) return raw;
   }
+  // Fallback: primeiro <a href="https://..."> que aponte para loja (ex.: "Please click here" na página de redirect)
+  const linkRegex = /<a[^>]+href=["'](https?:\/\/[^"']+)["']/gi;
+  let match: RegExpExecArray | null;
+  while ((match = linkRegex.exec(html)) !== null) {
+    const raw = match[1].replace(/&amp;/g, '&').trim();
+    if (isStoreUrl(raw)) return raw;
+  }
   return null;
 }
 

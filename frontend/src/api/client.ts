@@ -80,7 +80,7 @@ async function request<T>(
   ) {
     message = GENERIC_500_MSG;
   }
-  if (res.status === 502) {
+  if (res.status === 502 || res.status === 404) {
     message = SERVER_UNREACHABLE_MSG;
   }
   throw new Error(message);

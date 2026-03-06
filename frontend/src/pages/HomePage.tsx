@@ -4,6 +4,7 @@ import { getGames, getDeals, createClaim } from '../api/client';
 import type { Game, Deal } from '../api/client';
 import { useUser } from '../context/UserContext';
 import FilterBar from '../components/FilterBar';
+import DealFilterBar from '../components/DealFilterBar';
 import GameCard from '../components/GameCard';
 import GameCardSkeleton from '../components/GameCardSkeleton';
 import DealCard from '../components/DealCard';
@@ -29,6 +30,8 @@ export default function HomePage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loadingDeals, setLoadingDeals] = useState(false);
   const [errorDeals, setErrorDeals] = useState<string | null>(null);
+  const [dealStoreId, setDealStoreId] = useState('');
+  const [dealUpperPrice, setDealUpperPrice] = useState('');
 
   const loadGames = useCallback(async () => {
     setLoading(true);
@@ -50,14 +53,19 @@ export default function HomePage() {
     setLoadingDeals(true);
     setErrorDeals(null);
     try {
-      const data = await getDeals({ pageSize: 24 });
+      const upper = dealUpperPrice.trim() ? parseFloat(dealUpperPrice) : undefined;
+      const data = await getDeals({
+        pageSize: 24,
+        storeId: dealStoreId || undefined,
+        upperPrice: Number.isFinite(upper) ? upper : undefined,
+      });
       setDeals(data);
     } catch (e) {
       setErrorDeals(e instanceof Error ? e.message : 'Erro ao carregar promoções.');
     } finally {
       setLoadingDeals(false);
     }
-  }, []);
+  }, [dealStoreId, dealUpperPrice]);
 
   useEffect(() => {
     loadGames();
@@ -173,6 +181,12 @@ export default function HomePage() {
           <p className="text-gray-400 text-sm mb-6">
             Descontos em jogos em várias lojas. Clica em Ver oferta para abrir o link.
           </p>
+          <DealFilterBar
+            storeId={dealStoreId}
+            upperPrice={dealUpperPrice}
+            onStoreChange={setDealStoreId}
+            onUpperPriceChange={setDealUpperPrice}
+          />
           {errorDeals && (
             <div className="mb-6 p-4 rounded-lg bg-red-900/30 border border-red-700 text-red-200">
               {errorDeals}

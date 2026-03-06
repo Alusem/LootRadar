@@ -20,6 +20,8 @@ export interface Deal {
   storeId: string;
   storeName: string;
   dealUrl: string;
+  /** URL direta da loja (ex.: Steam); usar em preferência a dealUrl ao abrir a oferta */
+  storeUrl: string;
 }
 
 export interface User {

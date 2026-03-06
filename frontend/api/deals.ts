@@ -17,6 +17,8 @@ interface DealDto {
   storeId: string;
   storeName: string;
   dealUrl: string;
+  /** URL direta para a página do jogo na loja (ex.: Steam); quando não houver, usar dealUrl (redirect CheapShark) */
+  storeUrl: string;
 }
 
 async function getStoreNames(): Promise<Record<string, string>> {
@@ -43,6 +45,11 @@ function mapDeal(item: Record<string, unknown>, storeNames: Record<string, strin
   const salePrice = typeof item.salePrice === 'number' ? item.salePrice : parseFloat(String(item.salePrice ?? '0')) || 0;
   const normalPrice = typeof item.normalPrice === 'number' ? item.normalPrice : parseFloat(String(item.normalPrice ?? '0')) || 0;
   const savings = typeof item.savings === 'number' ? item.savings : parseFloat(String(item.savings ?? '0')) || 0;
+  const steamAppID = item.steamAppID != null ? String(item.steamAppID) : '';
+  const cheapSharkRedirect = `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealId)}`;
+  const storeUrl = storeId === '1' && steamAppID
+    ? `https://store.steampowered.com/app/${steamAppID}/`
+    : cheapSharkRedirect;
   return {
     id: dealId,
     title: String(item.title ?? ''),
@@ -52,7 +59,8 @@ function mapDeal(item: Record<string, unknown>, storeNames: Record<string, strin
     savings,
     storeId,
     storeName: storeNames[storeId] ?? `Loja ${storeId}`,
-    dealUrl: `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealId)}`,
+    dealUrl: cheapSharkRedirect,
+    storeUrl,
   };
 }
 

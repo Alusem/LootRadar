@@ -16,7 +16,7 @@ function formatPrice(value: number): string {
 
 export default function DealCard({ deal }: DealCardProps) {
   const handleVerOferta = () => {
-    window.open(deal.dealUrl, '_blank', 'noopener,noreferrer');
+    window.open(deal.storeUrl ?? deal.dealUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (

@@ -16,7 +16,11 @@ function formatPrice(value: number): string {
 
 export default function DealCard({ deal }: DealCardProps) {
   const handleVerOferta = () => {
-    window.open(deal.storeUrl ?? deal.dealUrl, '_blank', 'noopener,noreferrer');
+    const isSteam = deal.storeId === '1';
+    const url = isSteam
+      ? (deal.storeUrl ?? deal.dealUrl)
+      : `/api/deal-redirect?dealID=${encodeURIComponent(deal.id)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (

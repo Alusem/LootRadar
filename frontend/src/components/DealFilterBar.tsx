@@ -50,7 +50,7 @@ export default function DealFilterBar({
       </div>
       <div className="flex items-center gap-2">
         <label htmlFor="deal-price" className="text-sm text-gray-400">
-          Preço máx. (USD)
+          Preço máx. (R$)
         </label>
         <input
           id="deal-price"

@@ -53,11 +53,13 @@ export default function HomePage() {
     setLoadingDeals(true);
     setErrorDeals(null);
     try {
-      const upper = dealUpperPrice.trim() ? parseFloat(dealUpperPrice) : undefined;
+      const upperBRL = dealUpperPrice.trim() ? parseFloat(dealUpperPrice) : NaN;
+      const BRL_TO_USD = 5.8; // taxa aproximada para converter R$ → USD (API CheapShark usa USD)
+      const upperUSD = Number.isFinite(upperBRL) && upperBRL > 0 ? upperBRL / BRL_TO_USD : undefined;
       const data = await getDeals({
         pageSize: 24,
         storeId: dealStoreId || undefined,
-        upperPrice: Number.isFinite(upper) ? upper : undefined,
+        upperPrice: upperUSD,
       });
       setDeals(data);
     } catch (e) {

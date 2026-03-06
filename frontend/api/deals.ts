@@ -47,9 +47,10 @@ function mapDeal(item: Record<string, unknown>, storeNames: Record<string, strin
   const savings = typeof item.savings === 'number' ? item.savings : parseFloat(String(item.savings ?? '0')) || 0;
   const steamAppID = item.steamAppID != null ? String(item.steamAppID) : '';
   const cheapSharkRedirect = `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealId)}`;
-  const storeUrl = storeId === '1' && steamAppID
-    ? `https://store.steampowered.com/app/${steamAppID}/`
-    : cheapSharkRedirect;
+  const storeUrl =
+    storeId === '1' && steamAppID
+      ? `https://store.steampowered.com/app/${steamAppID}/`
+      : `/api/deal-redirect?dealID=${encodeURIComponent(dealId)}`;
   return {
     id: dealId,
     title: String(item.title ?? ''),
